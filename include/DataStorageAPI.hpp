@@ -30,8 +30,8 @@ public:
     	
     	void post(std::string key, std::string new_data){
     	
-    		std::cout << "POST" << std::endl;
-    		std::cout << "key: " << key << "   value: " << new_data << std::endl;
+    		//std::cout << "POST" << std::endl;
+    		//std::cout << "key: " << key << "   value: " << new_data << std::endl;
     		
     		std::map< std::string , std::vector< std::string > >::iterator it;
     		
