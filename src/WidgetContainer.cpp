@@ -29,7 +29,7 @@ void WidgetContainer::event_handler(genv::event ev){
 	THIS FUNCTION IS ONLY CALLED IF THIS WidgetContainer AND/OR ONE OF ITS COMPONENT IS ACTIVE (eg. by a click).
 */
 
-	//std::cout << "is_dragged: " << is_dragged << std::endl;
+	std::cout << "is_moveable: " << get_moveable() << std::endl;
 	if(get_dragged() && ev.type == genv::ev_mouse){
 		
 		std::cout << "dragging " << this->name << std::endl;
@@ -76,7 +76,7 @@ void WidgetContainer::event_handler(genv::event ev){
 		}
 		
 		// if no content is selected, then we make dragging available
-		if(!is_content_selected){
+		if(!is_content_selected && get_moveable()){
 		
 			set_dragged(true);
 			distance_x = ev.pos_x - get_x();

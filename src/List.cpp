@@ -9,13 +9,13 @@ List::List(int xx, int yy, int cx, int cy, std::string nn, DataStorage * d, Busi
 	// set up sizes according to user input
 	if(siz == SMALL){
 	
-		this->set_size_x(50);
+		this->set_size_x(100);
 		this->set_size_y(100);
 		this->fontsiz = 10;
 	
 	} else if (siz == LARGE){
 	
-		this->set_size_x(80);
+		this->set_size_x(160);
 		this->set_size_y(160);
 		this->fontsiz = 20;
 	}

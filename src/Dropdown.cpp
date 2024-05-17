@@ -13,14 +13,13 @@ Dropdown::Dropdown(int xx, int yy, int cx, int cy, std::string nn, DataStorage *
 
 void Dropdown::event_handler(genv::event ev){
 
-	bool element_clicked = false;
+	element_clicked = false;
 	
 	std::cout << "show_full: " << show_full << std::endl;
 	std::cout << "size_y: " << size_y << std::endl;
 	if(show_full){
 		
 		List::event_handler(ev);
-		
 		
 		// if an element from the list was selected, we collapse the list
 		for (WidgetBase * &w: connected_widgets){
