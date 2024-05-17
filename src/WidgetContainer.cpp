@@ -119,7 +119,7 @@ void WidgetContainer::refresh(){
 
 	// we redraw this container on the its canvas
 	
-	std::cout << r << " " << g << " " << b << std::endl;
+	//std::cout << r << " " << g << " " << b << std::endl;
 	
 	c << genv::color(r,g,b) << genv::move_to(0, 0) << genv::box_to(size_x, size_y);
 	
@@ -138,7 +138,7 @@ void WidgetContainer::refresh(){
 	
 	}
 	
-	std::cout << "refreshed: " << this->name << std::endl;
+	//std::cout << "refreshed: " << this->name << std::endl;
 
 }
 
@@ -162,10 +162,12 @@ void WidgetContainer::deactivate(){
 	// content Widgets
 
 	this->set_active(false);
+	this->set_highlighted(false);
 
 	for(WidgetBase * &w: connected_widgets){
 	
 		w->set_active(false);
+		w->set_highlighted(false);
 	
 	}
 

@@ -35,7 +35,7 @@ void Dropdown::event_handler(genv::event ev){
 
 		}
 
-	} else {
+	} else if (ev.button == 1) {
 	
 		initialize_list();
 		show_full = true;

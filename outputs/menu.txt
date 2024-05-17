@@ -1,1 +1,1 @@
-Large game (30x30)
+Small game (15x15)

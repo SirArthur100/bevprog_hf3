@@ -7,6 +7,8 @@
 #include "../include/List.hpp"
 #include "../include/Dropdown.hpp"
 #include "../include/Menu.hpp"
+#include "../include/Tiles.hpp"
+#include "../include/Dummy_BL.hpp"
 
 // controllers
 #include "../include/NumberWithArrows.hpp"
@@ -154,11 +156,11 @@ This function is responsible for changing between these states.
 	
 		// WE ACTIVATE OR REACTIVATE A WIDGET
 		// this is done by detecting the clicks
-		if(ev.button == 1 && w->clicked(ev.pos_x, ev.pos_y) && w->visible && w->interactive){
+		if(w->clicked(ev.pos_x, ev.pos_y) && w->visible && w->interactive){
 		
 			std::cout << "ACTIVATING: " << w->name << std::endl;
 			w->event_handler(ev);
-			//break;
+			break;
 		
 		} else {
 		
@@ -166,7 +168,7 @@ This function is responsible for changing between these states.
 			if(w->get_active()){
 				//std::cout << "ADDING EVENT TO: " << w->name << std::endl;
 				w->event_handler(ev);
-			//	break;
+				break;
 			
 			}
 		}
@@ -177,11 +179,10 @@ This function is responsible for changing between these states.
 	//-------------------------------------------
 	
 	
+	// lastly, we draw our widgets in reverse order, so the to element gets drawn lastly
+	for(size_t i = UI_components.size() - 1 ; UI_components.size() > i ; --i){
 	
-	// lastly, we draw our widgets
-	for(WidgetContainer * &w: UI_components){
-	
-		w->draw();
+		UI_components[i]->draw();
 	
 	}
 
@@ -229,8 +230,15 @@ int main(){
 	gout.load_font("../resources/LiberationSans-Regular.ttf", 20);
 
 	Menu * menu = dropdown_list("menu", LARGE, 0, 0);
+	
+	DataStorage * ds = new DataStorage();
+	Dummy_BL * list_bl = new Dummy_BL("tiles");
+	Tiles * tiles = new Tiles(800, 548, 1000, 1000, "tiles", SMALL, ds, list_bl);
+	tiles->move_widget(0, 52);
+	tiles->set_moveable(false);
 
     	UI_components.push_back(menu);
+    	UI_components.push_back(tiles);
     
     	while (gin >> ev) {
     		

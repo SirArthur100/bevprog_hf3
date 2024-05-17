@@ -26,7 +26,11 @@ void Tile::draw(){
 
 void Tile::event_handler(genv::event ev){
 
-	if( ev.button == 1 && clicked(ev.pos_x, ev.pos_y) && this->interactive ){
+	if(!interactive){
+		return;
+	}
+
+	if( ev.button == 1 && clicked(ev.pos_x, ev.pos_y) ){
 	
 		this->set_active(true);
 		
@@ -36,35 +40,52 @@ void Tile::event_handler(genv::event ev){
 		
 		}
 	
+	} else if (clicked(ev.pos_x, ev.pos_y)){
+	
+		this->set_active(true);
+	
+	} else {
+	
+		this->set_active(false);
+	
 	}
 
 }
 
 void Tile::refresh(){
+
+	
 	
 	// clear canvas
 	c.open(this->canvas_x, this->canvas_y);
 	
-	// draw display box
+	// draw box
 	if(this->active || this->highlighted){
 	
-		//td::cout << "highlight_color: " << highlight_color <<  std::endl;
-		//set_color("red");
-		c << move_to(0,0) << color(200, 200, 200) << box_to(this->size_x-1, this->size_y-1);
+		if (false){
+			c << genv::color(1, 1, 1) << genv::move_to(0, 0) << genv::line_to(0+size_x-1, 0+size_y-1) << genv::move_to(size_x-1, 0) << genv::line_to(0, 0+size_y-1);
+			c << genv::move_to(1, 0) << genv::line_to(0+size_x-1, 0+size_y-2) << genv::move_to(size_x-1, 1) << genv::line_to(1, 0+size_y-1);
+			//c << genv::move_to(1, 0) << genv::line_to(0+size_x-2, 0+size_y-1) << genv::move_to(size_x-1, 1) << genv::line_to(1, 0+size_y-1);
+		}
+		
+		if (true){
+			circle_algo( (get_size_x() / 2) - 2 , (get_size_x() / 2), (get_size_x() / 2));
+			circle_algo( (get_size_x() / 2) - 3 , (get_size_x() / 2), (get_size_x() / 2));
+		}
+	
+		// c << move_to(0,0) << color(200, 200, 200) << box_to(this->size_x-1, this->size_y-1);
 	
 	} else {
 	
-		//set_color(background_color);
-		c << move_to(0,0) << color(r, g, b) << box_to(this->size_x-1, this->size_y-1);
+		// c << move_to(0,0) << color(r, g, b) << box_to(this->size_x-1, this->size_y-1);
 	
 	}
 	
-	// if it is active, add green borders
-	if(this->active){
+	// draw border
+	c << genv::color(150,150,150) << genv::move_to(0, 0) << genv::line_to(0+size_x-1, 0) << genv::line_to(0+size_x-1, 0+size_y-1) << genv::line_to(0, 0+size_y-1) << genv::line_to(0, 0);
 
-		c << genv::color(0,100,0) << genv::move_to(0, 0) << genv::line_to(0+size_x, 0) << genv::line_to(0+size_x, 0+size_y) << genv::line_to(0, 0+size_y) << genv::line_to(0, 0);
-	
-	}
+	// player position
+
 }
 
 void Tile::send_event_to_business_logic(genv::event ev){
@@ -86,7 +107,64 @@ void Tile::set_highlight_color(std::string col){
 
 }
 
+void Tile::circle_algo(int r, int x_centre, int y_centre){
 
+    int x = r, y = 0;
+     
+     c << genv::color(100,100,100);
+     
+    // Printing the initial point on the axes 
+    // after translation
+    c << genv::move_to( x + x_centre ,y + y_centre )<< genv::dot;
+     
+    // When radius is zero only a single
+    // point will be printed
+    if (r > 0)
+    {
+        c << genv::move_to( x + x_centre, -y + y_centre )<< genv::dot;
+        c << genv::move_to( y + x_centre, x + y_centre )<< genv::dot;
+        c << genv::move_to( -y + x_centre, x + y_centre )<< genv::dot;
+    }
+     
+    // Initialising the value of P
+    int P = 1 - r;
+    while (x > y)
+    { 
+        y++;
+         
+        // Mid-point is inside or on the perimeter
+        if (P <= 0)
+            P = P + 2*y + 1;
+        // Mid-point is outside the perimeter
+        else
+        {
+            x--;
+            P = P + 2*y - 2*x + 1;
+        }
+         
+        // All the perimeter points have already been printed
+        if (x < y)
+            break;
+         
+        // Printing the generated point and its reflection
+        // in the other octants after translation
+        c << genv::move_to( x + x_centre, y + y_centre )<< genv::dot;
+        c << genv::move_to( -x + x_centre, y + y_centre )<< genv::dot;
+        c << genv::move_to( x + x_centre, -y + y_centre )<< genv::dot;
+        c << genv::move_to( -x + x_centre, -y + y_centre )<< genv::dot;
+         
+        // If the generated point is on the line x = y then 
+        // the perimeter points have already been printed
+        if (x != y)
+        {
+            c << genv::move_to( y + x_centre, x + y_centre )<< genv::dot;
+            c << genv::move_to( -y + x_centre, x + y_centre )<< genv::dot;
+            c << genv::move_to( y + x_centre, -x + y_centre )<< genv::dot;
+            c << genv::move_to( -y + x_centre, -x + y_centre )<< genv::dot;
+        }
+    }
+
+}
 
 
 
