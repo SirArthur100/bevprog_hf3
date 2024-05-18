@@ -13,14 +13,14 @@ The Tiles container will group together the Tile widgets of the game.
 class Tiles : public WidgetContainer{
 
 	// this is a debugging variable
-	int map_size = 30;
+	int map_size;
 	int sx;
 	int sy;
 	
 
 public:
 
-	Tiles(int xx, int yy, int cx, int cy, std::string nn, SIZE siz, DataStorage * d, BusinessLogic * b);
+	Tiles(int xx, int yy, int cx, int cy, std::string nn, SIZE siz, DataStorage * d, BusinessLogic * b, int game_size);
 	
 	// specifics
 	void generate_tiles();

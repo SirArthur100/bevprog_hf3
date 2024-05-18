@@ -1,6 +1,6 @@
 #include "../include/List.hpp"
 
-List::List(int xx, int yy, int cx, int cy, std::string nn, DataStorage * d, BusinessLogic * b, size_t nel, SIZE siz) : WidgetContainer(xx,yy,cx,cy,nn, siz){
+List::List(int xx, int yy, int cx, int cy, std::string nn, DataStorage * d, BusinessLogic * b, size_t nel, SIZE siz, std::string storage_ref_name) : WidgetContainer(xx,yy,cx,cy,nn, siz){
 
 	elements_to_show = nel;
 	this->set_color("dark-gray");
@@ -28,7 +28,7 @@ List::List(int xx, int yy, int cx, int cy, std::string nn, DataStorage * d, Busi
 	add_business_logic(b);
 
 	// we get the list elements from the data storage
-	list_elements = connected_data_storages[0]->get_whole("list");
+	list_elements = connected_data_storages[0]->get_whole(storage_ref_name);
 	
 	idx_first = 0;
 	idx_last = std::min(list_elements.size(), elements_to_show);
@@ -170,7 +170,7 @@ void List::restructuring(std::string s){
 void List::deselect_all(){
 
 	for(WidgetBase * &w: connected_widgets){
-						
+	
 		w->set_active(false);
 
 	}
@@ -182,7 +182,9 @@ void List::deselect_all(){
 void List::clear_list(){
 
 	for(WidgetBase * &w: connected_widgets){
-			
+	
+		connected_data_storages[0]->del_widget_by_name(w->name);
+		connected_data_storages[0]->del(w->name);
 		delete w;
 	}
 	

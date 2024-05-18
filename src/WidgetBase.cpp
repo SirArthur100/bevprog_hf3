@@ -29,6 +29,7 @@ WidgetBase::WidgetBase(int xx, int yy, int cx, int cy, std::string nn, SIZE siz)
 	this->visible = true;
 	this->interactive = true;
 	this->highlighted = false;
+	this->destroyable = false;
 }
 
 void WidgetBase::set_size_x(int new_size){

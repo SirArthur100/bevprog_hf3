@@ -9,10 +9,7 @@
 #include "../include/Menu.hpp"
 #include "../include/Tiles.hpp"
 #include "../include/Dummy_BL.hpp"
-
-// controllers
-#include "../include/NumberWithArrows.hpp"
-#include "../include/PlainList.hpp"
+#include "../include/tic-tac-toe-BL.hpp"
 
 #include <math.h>
 #include <iostream>
@@ -141,6 +138,8 @@ This function is responsible for changing between these states.
 
 */
 	
+	std::cout << "NEW EVENT: " << std::endl;
+	
 	for(WidgetContainer * &w: UI_components){
 	
 		// WE DEACTIVATE AN ACTIVE WIDGET
@@ -154,6 +153,7 @@ This function is responsible for changing between these states.
 	
 	for(WidgetContainer * &w: UI_components){
 	
+		std::cout << "BEFORE CLICK: " << w->name << std::endl;
 		// WE ACTIVATE OR REACTIVATE A WIDGET
 		// this is done by detecting the clicks
 		if(w->clicked(ev.pos_x, ev.pos_y) && w->visible && w->interactive){
@@ -188,7 +188,7 @@ This function is responsible for changing between these states.
 
 }
 
-Menu * dropdown_list(std::string name_of_widget, SIZE s, int x, int y){
+/*Menu * dropdown_list(std::string name_of_widget, SIZE s, int x, int y){
 
 	// initiate new data storage with a display value of 0 ------------------------------
 	DataStorage * ds = new DataStorage();
@@ -212,7 +212,7 @@ Menu * dropdown_list(std::string name_of_widget, SIZE s, int x, int y){
 
 	return l_1;
 
-}
+}*/
 
 void draw_background(){
 
@@ -228,17 +228,9 @@ int main(){
 	gin.timer(100);
 	
 	gout.load_font("../resources/LiberationSans-Regular.ttf", 20);
-
-	Menu * menu = dropdown_list("menu", LARGE, 0, 0);
 	
 	DataStorage * ds = new DataStorage();
-	Dummy_BL * list_bl = new Dummy_BL("tiles");
-	Tiles * tiles = new Tiles(800, 548, 1000, 1000, "tiles", SMALL, ds, list_bl);
-	tiles->move_widget(0, 52);
-	tiles->set_moveable(false);
-
-    	UI_components.push_back(menu);
-    	UI_components.push_back(tiles);
+	TicTacBL * bl = new TicTacBL("menu_BL", ds, &UI_components);
     
     	while (gin >> ev) {
     		

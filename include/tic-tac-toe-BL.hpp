@@ -2,6 +2,9 @@
 #define TicTacBL_HPP
 
 #include "BusinessLogic.hpp"
+#include "WidgetContainer.hpp"
+#include "Tiles.hpp"
+#include "Menu.hpp"
 
 #include <vector>
 
@@ -11,13 +14,24 @@ class TicTacBL : public BusinessLogic{
 	
 public:
 
+	// game elements
+	std::vector<WidgetContainer *> *game_container;
+	Menu* game_menu = NULL;
+	Tiles* game_tiles = NULL;
+
 	int game_size;
+	int win;
+	
+	std::string parent_event;
+
+	void remove_elements();
 
 	// initiators
-	TicTacBL(std::string n, std::string map_size);
+	TicTacBL(std::string n, DataStorage * dstore, std::vector<WidgetContainer *> *containers);
 	void set_game_size(size_t s);
 	void generate_starting_state();
 	void initiate_current_player();
+	void construct_menu();
 	
 	// game state checkers
 	bool is_valid_move(size_t pos);

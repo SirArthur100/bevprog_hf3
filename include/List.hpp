@@ -30,7 +30,7 @@ public:
 	int display_x;
 	int display_y;
 
-	List(int xx, int yy, int cx, int cy, std::string nn, DataStorage * d, BusinessLogic * b, size_t nel, SIZE siz = SMALL);
+	List(int xx, int yy, int cx, int cy, std::string nn, DataStorage * d, BusinessLogic * b, size_t nel, SIZE siz = SMALL, std::string storage_ref_name = "list");
 	
 	void initialize_list();
 	void deselect_all();

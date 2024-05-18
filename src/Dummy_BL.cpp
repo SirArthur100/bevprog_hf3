@@ -1,7 +1,7 @@
 #include "../include/Dummy_BL.hpp"
 #include <fstream>
 
-Dummy_BL::Dummy_BL(std::string s) : BusinessLogic(s){
+Dummy_BL::Dummy_BL(std::string s, DataStorage * dstore) : BusinessLogic(s, dstore){
 
 }
 

@@ -1,7 +1,7 @@
 #include "../include/Dropdown.hpp"
 
-Dropdown::Dropdown(int xx, int yy, int cx, int cy, std::string nn, DataStorage * d, BusinessLogic * b, size_t nel, SIZE siz) 
-: List(xx, yy, cx, cy, nn, d, b, nel, siz)
+Dropdown::Dropdown(int xx, int yy, int cx, int cy, std::string nn, DataStorage * d, BusinessLogic * b, size_t nel, SIZE siz, std::string storage_ref_name) 
+: List(xx, yy, cx, cy, nn, d, b, nel, siz, storage_ref_name)
 {
 
 	show_full = false;

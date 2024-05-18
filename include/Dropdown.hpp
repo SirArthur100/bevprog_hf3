@@ -21,7 +21,7 @@ public:
 	bool show_full;
 	bool element_clicked;
 
-	Dropdown(int xx, int yy, int cx, int cy, std::string nn, DataStorage * d, BusinessLogic * b, size_t nel, SIZE siz = SMALL);
+	Dropdown(int xx, int yy, int cx, int cy, std::string nn, DataStorage * d, BusinessLogic * b, size_t nel, SIZE siz = SMALL, std::string storage_ref_name = "list");
 	
 	void collapse_list();
 	

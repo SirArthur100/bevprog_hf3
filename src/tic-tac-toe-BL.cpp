@@ -34,37 +34,114 @@ for the player. If no win is present, then check draw. If no end condition is re
 
 */
 
-TicTacBL::TicTacBL(std::string s, std::string map_size) : BusinessLogic(s){
+TicTacBL::TicTacBL(std::string s, DataStorage * dstore, std::vector<WidgetContainer *> *containers) : BusinessLogic(s, dstore){
+	
+	game_container = containers;
+	
+	construct_menu();
+}
 
-	if(map_size.compare("large")){
+void TicTacBL::construct_menu(){
+
+	ds->post("menu_contents", "Small game");
+	ds->post("menu_contents", "Large game");
+	ds->post("menu_contents", "Quit game");
+	ds->post("menu_selected", "");
+
+	Menu* menu = new Menu(50, 100, 200, 200, "menu", ds, this, 3, LARGE, "menu_contents");
+	menu->move_widget(0, 0);
+	menu->set_moveable(false);
 	
-		this->set_game_size(30);
-	
-	} else {
-	
-		this->set_game_size(15);
-	
-	}
-	
-	generate_starting_state();
-	
-	initiate_current_player();
+	game_menu = menu;
+	ds->add_widget(game_menu);
+	game_container->push_back(game_menu);
 
 }
 
 void TicTacBL::widget_event_handler(std::string s, genv::event ev){
 
-	// we want to modify the display element of the data storage
-	// take the old value and increase it by one
+	std::cout << "CURRENT EVENT: " << s << std::endl;
+
+	// handle menu selections
+	if(ev.button == 1 && parent_event == "menu"){
 	
-	if(ev.button == genv::btn_left && s != "small_dropdown_list" && s != "large_dropdown_list" &&
-					  s != "small_simple_list"   && s != "large_simple_list"){
+		if(s.compare("Quit") == 0){
+		
+		
+		} else if(s.compare("Small game") == 0){
+		
+			std::cout << "START CREATING SMALL MAP!! " << std::endl;
+			set_game_size(3);
+			
+		
+		} else if (s.compare("Large game") == 0){
+		
+			set_game_size(15);
+		}
+		
+		// remove old tiles if any
+		if (game_tiles != NULL){
+		
+			remove_elements();
+		
+		}
+		
+		std::cout << "Elements removed!" << std::endl;
 	
-		ds->update("selected", 0, s);
-		file_save(name, "selected");
+		// create new tiles
 	
+		Tiles * tiles = new Tiles(800, 548, 1000, 1000, "tiles", SMALL, ds, this, game_size);
+		tiles->move_widget(0, 52);
+		tiles->set_moveable(false);
+		
+		std::cout << "TILES CREATED!! " << std::endl;
+		
+		game_tiles = tiles;
+		ds->add_widget(game_tiles);
+		game_container->push_back(game_tiles);
+		
+		std::cout << "TILES ADDED!! " << std::endl;
+		
+		initiate_current_player();
+		
+		generate_starting_state();
+		
+		std::cout << "SETUP COMPLETE!! " << std::endl;
+	
+		std::cout << "BEFORE UPDATE: " << std::endl;
+		ds->update("menu_selected", 0, s);
 	}
 
+	
+	// handle 
+
+	// parent event checks the container of the widget (if there is any)
+	parent_event = s;
+}
+
+void TicTacBL::remove_elements(){
+
+	game_tiles->clear_widgets();
+	ds->del_widget_by_name(game_tiles->name);
+	ds->del(game_tiles->name);
+	delete game_tiles;
+	game_tiles = NULL;
+	
+	std::cout << "PURGED!! " << std::endl;
+	
+	//game_container->clear();
+	for (std::vector<WidgetContainer *>::iterator it = game_container->begin(); it != game_container->end(); ++it) {
+	    if ((*it)->name.compare("tiles") == 0) {
+		game_container->erase(it);
+		break;
+	    }
+	}
+	
+	std::cout << "CONTAINER CLEAR!! " << std::endl;
+	
+	//construct_menu();
+	
+	std::cout << "NEW MENU CONSTRUCTED!! " << std::endl;
 }
 
 void TicTacBL::file_save(std::string filename, std::string map_key){
@@ -86,7 +163,7 @@ void TicTacBL::set_game_size(size_t s){
 void TicTacBL::generate_starting_state(){
 	
 	// initiate each and every map positions with zeros	
-	for(size_t i=0 ; i < game_size ; i++){
+	for(size_t i=0 ; i < game_size * game_size ; i++){
 	
 		this->ds->post("map", "0");
 		

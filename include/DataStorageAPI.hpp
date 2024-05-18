@@ -65,15 +65,33 @@ public:
     	
     	}
     	
+    	void del(std::string key){
+    		
+    		data.erase(key);
+    	
+    	}
+    	
+    	void purge(){
+    		
+    		data.clear();
+    		connected_widgets.clear();
+    	
+    	}
+    	
+    	
     	std::vector< std::string > get_whole(std::string key){
     		
     		return data[key]; 
     	
     	}
+
+    	void del_widget_by_name(std::string widget_name);
     	
     	void add_widget(WidgetBase * w);
     	
     	void refresh_connections();
+    	
+    	void write_content_to_file();
 
 };
 

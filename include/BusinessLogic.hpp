@@ -10,6 +10,8 @@ This object connects the widget with the data. Each functional widget group shar
 #include "DataStorageAPI.hpp"
 #include "../lib/graphics.hpp"
 
+#include <vector>
+
 class BusinessLogic{
 
 protected:
@@ -19,9 +21,10 @@ protected:
 	
 public:
 
-	BusinessLogic(std::string n){
+	BusinessLogic(std::string n, DataStorage * dstore){
 	
 		this->name = n;
+		add_data_storage(dstore);
 	
 	}
 

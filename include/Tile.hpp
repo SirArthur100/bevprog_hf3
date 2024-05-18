@@ -35,6 +35,7 @@ public:
 	void set_background_color(std::string col);
 	void set_highlight_color(std::string col);
 	void circle_algo(int r, int x_c, int y_c);
+	void set_storage_value(std::string new_val);
 
 };
 

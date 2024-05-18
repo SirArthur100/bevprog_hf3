@@ -11,7 +11,7 @@ class Menu : public Dropdown{
 
 public:
 
-	Menu(int xx, int yy, int cx, int cy, std::string nn, DataStorage * d, BusinessLogic * b, size_t nel, SIZE siz = SMALL);
+	Menu(int xx, int yy, int cx, int cy, std::string nn, DataStorage * d, BusinessLogic * b, size_t nel, SIZE siz = SMALL, std::string storage_ref_name = "list");
 	
 	void event_handler(genv::event ev) override;
 };

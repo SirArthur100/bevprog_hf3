@@ -5,7 +5,7 @@ using namespace genv;
 Tile::Tile(int xx, int yy, int cx, int cy, std::string nn)
 : WidgetBase(xx, yy, cx, cy, nn, SMALL)
 {
-	
+
 }
 
 void Tile::draw(){
@@ -22,6 +22,12 @@ void Tile::draw(){
 		
 		}
 	}
+}
+
+void Tile::set_storage_value(std::string new_val){
+
+	connected_data_storages[0]->update(name, 0, new_val);
+
 }
 
 void Tile::event_handler(genv::event ev){

@@ -56,6 +56,7 @@ public:
 	bool interactive;
 	bool draggable;
 	bool highlighted;
+	bool destroyable;
 	
 	int r;
 	int g;

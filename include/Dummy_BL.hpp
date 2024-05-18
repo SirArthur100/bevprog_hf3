@@ -13,7 +13,7 @@ class Dummy_BL : public BusinessLogic{
 	
 public:
 
-	Dummy_BL(std::string n);
+	Dummy_BL(std::string n, DataStorage * dstore);
 	
 	//void add_data_storage(DataStorage * ds) override;
 	void widget_event_handler(std::string s, genv::event ev) override;
