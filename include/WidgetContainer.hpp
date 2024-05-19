@@ -20,6 +20,7 @@ class WidgetContainer : public WidgetBase{
 public:
 
 	WidgetContainer(int xx, int yy, int cx, int cy, std::string nn, SIZE siz = SMALL);
+	~WidgetContainer();
 	
 	bool is_dragged;
 	bool is_moveable;

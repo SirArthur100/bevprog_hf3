@@ -26,7 +26,7 @@ key 		: value
 -----------
 map 		: vector of coordinates (in one row)
 current_player 	: 1 or 2
-win_state	: 0=no, 1=player1, 2=player2, 3=draw
+win_state	: 0=no, 1=yes
 
 The map points are originally 0, with each incoming step, the currently selected coordinate
 is checked by the BL if it is valid. If it is valid, then the BL will check winning conditions
@@ -34,11 +34,54 @@ for the player. If no win is present, then check draw. If no end condition is re
 
 */
 
-TicTacBL::TicTacBL(std::string s, DataStorage * dstore, std::vector<WidgetContainer *> *containers) : BusinessLogic(s, dstore){
+TicTacBL::TicTacBL(std::string s, DataStorage * dstore, std::vector<WidgetContainer *> *containers, bool *q)
+: BusinessLogic(s, dstore)
+{
 	
 	game_container = containers;
 	
+	quit = q;
+	
 	construct_menu();
+		
+	construct_display();
+	
+	ds->post("win", "0");
+}
+
+TicTacBL::~TicTacBL(){
+	
+	for(WidgetContainer * c: *game_container){
+	
+		delete c;
+	
+	}
+}
+
+void TicTacBL::construct_display(){
+
+	// create container for display
+	WidgetContainer *cont = new WidgetContainer(200, 52, 400, 200, "game_display_container", LARGE);
+
+	Display *disp = new Display(200, 52, 400, 200, "game_display", LARGE);
+	disp->set_fontsize(20);
+	disp->add_data_storage(ds);
+	disp->add_business_logic(this);
+	ds->update("game_display", 0, "Use menu!");
+	ds->add_widget(disp);
+	
+	cont->add_widget(disp);
+	cont->add_business_logic(this);
+	cont->add_data_storage(ds);
+	
+	ds->add_widget(cont);
+	
+	cont->move_widget(161, 0);
+	cont->set_moveable(false);
+	cont->interactive = false;
+	
+	game_container->push_back(cont);
+
 }
 
 void TicTacBL::construct_menu(){
@@ -48,100 +91,141 @@ void TicTacBL::construct_menu(){
 	ds->post("menu_contents", "Quit game");
 	ds->post("menu_selected", "");
 
-	Menu* menu = new Menu(50, 100, 200, 200, "menu", ds, this, 3, LARGE, "menu_contents");
-	menu->move_widget(0, 0);
-	menu->set_moveable(false);
+	Menu * game_menu = new Menu(50, 100, 200, 200, "menu", ds, this, 3, LARGE, "menu_contents");
+	game_menu->move_widget(0, 0);
+	game_menu->set_moveable(false);
 	
-	game_menu = menu;
 	ds->add_widget(game_menu);
 	game_container->push_back(game_menu);
 
 }
 
+void TicTacBL::construct_tiles(){
+
+	// remove old tiles if any
+	remove_elements();
+	
+
+	// create new tiles
+
+	Tiles * game_tiles = new Tiles(800, 548, 1000, 1000, "tiles", SMALL, ds, this, game_size);
+	game_tiles->move_widget(0, 52);
+	game_tiles->set_moveable(false);
+	
+	
+	ds->add_widget(game_tiles);
+	game_container->push_back(game_tiles);
+	
+	
+	initiate_current_player();
+	
+	generate_starting_state();
+	
+	game_tiles->refresh();
+
+}
+
 void TicTacBL::widget_event_handler(std::string s, genv::event ev){
 
-	std::cout << "CURRENT EVENT: " << s << std::endl;
 
+	// -----------------------
 	// handle menu selections
+	// -----------------------
 	if(ev.button == 1 && parent_event == "menu"){
 	
-		if(s.compare("Quit") == 0){
-		
+		if(s.compare("Quit game") == 0){
+			
+			*quit = !(*quit);
 		
 		} else if(s.compare("Small game") == 0){
 		
-			std::cout << "START CREATING SMALL MAP!! " << std::endl;
-			set_game_size(3);
+			//std::cout << "START CREATING SMALL MAP!! " << std::endl;
+			set_game_size(15);
+			construct_tiles();
+			ds->update("game_display", 0, "Move: Player 1");
 			
 		
 		} else if (s.compare("Large game") == 0){
 		
-			set_game_size(15);
+			set_game_size(30);
+			construct_tiles();
+			ds->update("game_display", 0, "Move: Player 1");
 		}
 		
-		// remove old tiles if any
-		if (game_tiles != NULL){
-		
-			remove_elements();
-		
-		}
-		
-		std::cout << "Elements removed!" << std::endl;
-	
-		// create new tiles
-	
-		Tiles * tiles = new Tiles(800, 548, 1000, 1000, "tiles", SMALL, ds, this, game_size);
-		tiles->move_widget(0, 52);
-		tiles->set_moveable(false);
-		
-		std::cout << "TILES CREATED!! " << std::endl;
-		
-		game_tiles = tiles;
-		ds->add_widget(game_tiles);
-		game_container->push_back(game_tiles);
-		
-		std::cout << "TILES ADDED!! " << std::endl;
-		
-		initiate_current_player();
-		
-		generate_starting_state();
-		
-		std::cout << "SETUP COMPLETE!! " << std::endl;
-	
-		std::cout << "BEFORE UPDATE: " << std::endl;
 		ds->update("menu_selected", 0, s);
+		
+	}
+	
+	// -----------------------
+	// handle tile selections
+	// -----------------------
+	
+	if(ev.button == 1 && parent_event == "tiles" && s != "tiles" && ds->get("win",0).compare("0") == 0){
+		
+		// we can only place thingies to empty spaces
+		if(ds->get("map", std::stoi(s)).compare("0") == 0){
+			
+			ds->update( "map", std::stoi(s), ds->get( "current_player", 0 ) );
+			ds->update( s, 0, ds->get( "current_player", 0 ) );
+			
+			// after we updated the game positions
+			// we check winning conditions for current player
+			if(is_player_win()){
+			
+				ds->update("win",0,"1");
+				
+				ds->update("game_display", 0, "Player " + ds->get( "current_player", 0 ) + " won!");
+				
+				for (auto &t: winner_tiles){
+				
+					ds->post("winner_tiles",t);
+				
+				}
+				
+				ds->update("current_player", 0, "3");
+			
+			// switch players
+			} else if (ds->get( "current_player", 0 ).compare("1") == 0){
+		
+				ds->update("current_player", 0, "2");
+				ds->update("game_display", 0, "Move: Player 2");
+			
+			} else {
+			
+				ds->update("current_player", 0, "1");
+				ds->update("game_display", 0, "Move: Player 1");
+			
+			}
+			
+		}
+		
+		// check for draw
+		if (is_full() && ds->get("win",0).compare("0") == 0){
+		
+			ds->update("win",0,"2");
+			ds->update("game_display", 0, "Draw!");
+		
+		}
+	
 	}
 
-	
-	// handle 
-
-	// parent event checks the container of the widget (if there is any)
+	// parent event holds the container of the widget (if there is any)
 	parent_event = s;
 }
 
 void TicTacBL::remove_elements(){
-
-	game_tiles->clear_widgets();
-	ds->del_widget_by_name(game_tiles->name);
-	ds->del(game_tiles->name);
-	delete game_tiles;
-	game_tiles = NULL;
-	
-	std::cout << "PURGED!! " << std::endl;
 	
 	//game_container->clear();
 	for (std::vector<WidgetContainer *>::iterator it = game_container->begin(); it != game_container->end(); ++it) {
+	    
 	    if ((*it)->name.compare("tiles") == 0) {
+	    
+		delete *it;
+	    
 		game_container->erase(it);
 		break;
 	    }
 	}
-	
-	std::cout << "CONTAINER CLEAR!! " << std::endl;
-	
-	//construct_menu();
-	
-	std::cout << "NEW MENU CONSTRUCTED!! " << std::endl;
 }
 
 void TicTacBL::file_save(std::string filename, std::string map_key){
@@ -162,7 +246,8 @@ void TicTacBL::set_game_size(size_t s){
 
 void TicTacBL::generate_starting_state(){
 	
-	// initiate each and every map positions with zeros	
+	// initiate each and every map positions with zeros
+	this->ds->del("map");
 	for(size_t i=0 ; i < game_size * game_size ; i++){
 	
 		this->ds->post("map", "0");
@@ -172,6 +257,14 @@ void TicTacBL::generate_starting_state(){
 
 void TicTacBL::initiate_current_player(){
 
+
+	this->ds->del("winner_tiles");
+	winner_tiles.clear();
+	
+	this->ds->del("current_player");
+	this->ds->del("win");
+	
+	ds->post("win", "0");
 	this->ds->post("current_player", "1");
 
 }
@@ -235,10 +328,12 @@ bool TicTacBL::is_player_win(){
 			if (map[j][i].compare(current_player) == 0){
 			
 				counter++;
+				winner_tiles.push_back( std::to_string(j*game_size+i) );
 			
 			} else {
 			
 				counter = 0;
+				winner_tiles.clear();
 			
 			}
 			
@@ -261,10 +356,12 @@ bool TicTacBL::is_player_win(){
 			if (map[i][j].compare(current_player) == 0){
 			
 				counter++;
+				winner_tiles.push_back( std::to_string(i*game_size+j) );
 			
 			} else {
 			
 				counter = 0;
+				winner_tiles.clear();
 			
 			}
 			
@@ -287,11 +384,12 @@ bool TicTacBL::is_player_win(){
 			if (map[i+j][j].compare(current_player) == 0){
 			
 				counter++;
+				winner_tiles.push_back( std::to_string((i+j)*game_size+j) );
 			
 			} else {
 			
 				counter = 0;
-			
+				winner_tiles.clear();
 			}
 			
 			if (counter == WIN_TILES){
@@ -308,11 +406,12 @@ bool TicTacBL::is_player_win(){
 			if (map[j][i+j].compare(current_player) == 0){
 			
 				counter++;
+				winner_tiles.push_back( std::to_string( j*game_size + (i+j) ) );
 			
 			} else {
 			
 				counter = 0;
-			
+				winner_tiles.clear();
 			}
 			
 			if (counter == WIN_TILES){
@@ -328,16 +427,17 @@ bool TicTacBL::is_player_win(){
 	
 		counter = 0;
 	
-		for (size_t j = 0; j < game_size - i ; j++){
+		for (size_t j = 0; j < i+1 ; j++){
 	
 			if (map[i-j][j].compare(current_player) == 0){
 			
 				counter++;
+				winner_tiles.push_back( std::to_string( (i-j)*game_size + (j) ) );
 			
 			} else {
 			
 				counter = 0;
-			
+				winner_tiles.clear();
 			}
 			
 			if (counter == WIN_TILES){
@@ -351,14 +451,15 @@ bool TicTacBL::is_player_win(){
 		
 		for (size_t j = 0; j < game_size - i ; j++){
 	
-			if (map[game_size - j][i+j].compare(current_player) == 0){
+			if (map[game_size - 1 - j][i+j].compare(current_player) == 0){
 			
 				counter++;
+				winner_tiles.push_back( std::to_string( (game_size - 1 - j)*game_size + (i+j) ) );
 			
 			} else {
 			
 				counter = 0;
-			
+				winner_tiles.clear();
 			}
 			
 			if (counter == WIN_TILES){
@@ -368,7 +469,6 @@ bool TicTacBL::is_player_win(){
 			}
 		}
 	}
-	
 	
 	// if we did not return yet, return false, no winning condition is satisfied
 	return false;

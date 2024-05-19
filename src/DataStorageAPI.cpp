@@ -9,6 +9,22 @@ void DataStorage::add_widget(WidgetBase * w){
 
 }
     	
+void DataStorage::refresh_single_connection(std::string s){
+
+	for(WidgetBase * &w: connected_widgets){
+
+		if( w->name.compare( s ) == 0 ){
+		
+			w->refresh();
+			break;
+		}
+		
+	}
+	
+	write_content_to_file();
+	
+}
+
 void DataStorage::refresh_connections(){
 
 	for(WidgetBase * &w: connected_widgets){

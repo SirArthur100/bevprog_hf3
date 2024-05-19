@@ -30,6 +30,13 @@ WidgetBase::WidgetBase(int xx, int yy, int cx, int cy, std::string nn, SIZE siz)
 	this->interactive = true;
 	this->highlighted = false;
 	this->destroyable = false;
+	default_val("0");
+}
+
+void WidgetBase::default_val(std::string val){
+
+	this->default_value = val;
+
 }
 
 void WidgetBase::set_size_x(int new_size){
@@ -64,7 +71,7 @@ void WidgetBase::rename(std::string nn){
 	// data storage too
 	if( !connected_data_storages.empty() ){
 	
-		connected_data_storages[0]->post(name, name);
+		connected_data_storages[0]->post(name, default_value);
 		refresh();
 	}
 
@@ -104,8 +111,6 @@ void WidgetBase::set_active(bool a){
 
 	this->active = a;
 	
-	std::cout << "activity: " << this->name << " : " << get_active() << std::endl;
-	
 	// we need to refresh since there might be a change in appearance
 	refresh();
 
@@ -143,11 +148,10 @@ void WidgetBase::add_widget(WidgetBase * new_widget)
 void WidgetBase::add_data_storage(DataStorage * new_ds)
 {
 	this->connected_data_storages.push_back(new_ds);
-	std::cout << "NEW STORAGE ADDED" << std::endl;
 	
 	// when we attach a storage to a widget element, we register it there, creating a new
-	// key value pair, default the key and value are the name of the widget
-	connected_data_storages[0]->post(name, name);
+	// key value pair,
+	connected_data_storages[0]->post(name, default_value);
 	
 	refresh();
 }

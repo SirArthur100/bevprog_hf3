@@ -24,14 +24,8 @@ class DataStorage{
 	
 	
 public:
-	
-	//DataStorage& operator[](std::size_t idx)       		{ return data[idx]; }
-    	//const DataStorage& operator[](std::size_t idx) const 		{ return data[idx]; }
     	
     	void post(std::string key, std::string new_data){
-    	
-    		//std::cout << "POST" << std::endl;
-    		//std::cout << "key: " << key << "   value: " << new_data << std::endl;
     		
     		std::map< std::string , std::vector< std::string > >::iterator it;
     		
@@ -45,22 +39,19 @@ public:
     		
     		data[key].push_back(new_data); 
     		
-    		refresh_connections();
+    		refresh_single_connection(key);
     	
     	}
     	
     	void update(std::string key, size_t idx, std::string new_data){
 
-    		std::cout << "UPDATE" << std::endl;
-    		std::cout << "key: " << key << "   value: " << new_data << std::endl;
     		data[key][idx] = new_data;
-    		refresh_connections();
+    		refresh_single_connection(key);
     	
     	}
     	
     	std::string get(std::string key, size_t idx){
     		
-    		// std::cout << "GET" << std::endl;
     		return data[key][idx]; 
     	
     	}
@@ -90,6 +81,8 @@ public:
     	void add_widget(WidgetBase * w);
     	
     	void refresh_connections();
+    	
+    	void refresh_single_connection(std::string key);
     	
     	void write_content_to_file();
 

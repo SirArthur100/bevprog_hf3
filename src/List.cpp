@@ -51,6 +51,7 @@ void List::initialize_list(){
 	for(int i=idx_first; i < idx_last ; i++){
 		
 		Display * list_elem = new Display(display_x, display_y, this->canvas_x, this->canvas_y, list_elements[i] );
+		list_elem->default_val(list_elements[i]);
 		list_elem->set_x(this->x+1);
 		list_elem->set_y(this->y + i * display_y + i + 2);
 		list_elem->add_business_logic(this->bl);
@@ -125,8 +126,6 @@ void List::restructuring(std::string s){
 		if( idx_last < list_elements.size() ){
 		
 			deselect_all();
-			
-			std::cout<<"DOWN"<<std::endl;
 		
 			idx_last += 1;
 			idx_first += 1;
@@ -142,8 +141,6 @@ void List::restructuring(std::string s){
 		}
 	
 	} else if( s.compare("up") == 0 ) {
-	
-		std::cout<<"UP"<<std::endl;
 	
 		if( idx_first > 0 && idx_last > elements_to_show ){
 		
@@ -181,7 +178,7 @@ void List::deselect_all(){
 
 void List::clear_list(){
 
-	for(WidgetBase * &w: connected_widgets){
+	for(WidgetBase * w: connected_widgets){
 	
 		connected_data_storages[0]->del_widget_by_name(w->name);
 		connected_data_storages[0]->del(w->name);

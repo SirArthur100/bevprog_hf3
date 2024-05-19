@@ -25,8 +25,8 @@ Schematic for the program backend:  CONTROLLER - MODEL - VIEW
 
 
                                      ┏━━━━━━━━┓
-                             ┏━━━━┫ widget  ┣━━━┓                                 
-                             ┃       ┃             ┃     ┃                                 
+                             ┏━━━━┫ widget  ┣━━━┓ ---------------------------- registering widgets                               
+                             ┃       ┃             ┃     ┃                             \|
     ╔═════════╗     ┃      ┣━━━━━━━━┫     ┃      refreshing UI      ┏━━━━━━━━━━━┓
     ║   UI    ║━━━━╋━━━━┫ widget  ┃     ┣━━━━━━━━━<━━━━━━━<━━━━━┫ data store ┃
     ║         ║     ┃      ┃              ┣━━━╋                                     ┨                  ┃ MODEL
@@ -42,7 +42,7 @@ Schematic for the program backend:  CONTROLLER - MODEL - VIEW
 
        EVENT FLOW           
 
-               containes        containes 
+               contains        contains 
    ┌────────────┐      ┌──────────┐   ┌─────────┐
    │ Widget 1.  │      │ Widg 2.  │   │  Widg 3.│
    │            ├──────┤          ├───┤         │......
@@ -66,15 +66,15 @@ Schematic for the program backend:  CONTROLLER - MODEL - VIEW
                ┌───╴Display
                │
  ┌─────────┐   │
- │ Widget  ┼───┼───╴Arrow
- │   Base  │   │
- └─────────┘   │
-               └───╴Widget Container────List───Dropdown
+ │ Widget  ┼───┼───╴Tile           ----- Tiles
+ │   Base  │   │                  |
+ └─────────┘   │                 |
+               └───╴Widget Container────List───Dropdown---Menu
 
 
 
   ┌──────────┐
-  │ Business ┼───┬─────╴NumberWithArrows
+  │ Business ┼───┬─────╴TicTac_BL
   │  Logic   │   │
   └──────────┘   │
                  └─────╴PlainList
@@ -97,16 +97,11 @@ key ----> value
 Each widget component is registered on in the map, plus the model data.
 
 
-
-The implementation is kind of messy, however, with the already created widget it is like lego
-building to create new functionalities.
-
 The business logic is responsible for the file outputs.
 
-The WidgetContainers are movable.
-
-
-KNOWN ISSUE IS WHEN MOVING WIDGET NEXT TO SCREEN THEN UNEXPECTED/WRONG BEHAVIOUR IS PRESENT!!!!!!!!!!
+I TRIED TO ELIMINATE MEMORY LEAKAGE FOR MY OWN CLASSES BY IMPLEMENTING THE PROPER DESTRUCTORS, 
+BUT VALGRIND TELLS ME THAT THERE IS SOMETHING WEIRD
+GOING ON WITH THE FONTS AND CONVAS DRAWING, ITS NOT A BIG PROBLEM, IS JUST NOTICED IT.
 
 */
 
@@ -126,7 +121,7 @@ void clear_screen(){
 void UI_event_handler(event ev){
 
 /*
-
+	
 The MAIN PRINCIPLE OF THE UI is: there can be ONLY 1 active WidgetContainer on the level of the UI
 (sub WidgetContainers does not count)
 
@@ -138,14 +133,11 @@ This function is responsible for changing between these states.
 
 */
 	
-	std::cout << "NEW EVENT: " << std::endl;
-	
 	for(WidgetContainer * &w: UI_components){
 	
 		// WE DEACTIVATE AN ACTIVE WIDGET
 		if ( w->get_active() && ev.button == 1 && !w->clicked(ev.pos_x, ev.pos_y) ){
 		
-			std::cout << "DEACTIVATING: " << w->name << std::endl;
 			w->deactivate();
 			break;
 		}
@@ -153,12 +145,10 @@ This function is responsible for changing between these states.
 	
 	for(WidgetContainer * &w: UI_components){
 	
-		std::cout << "BEFORE CLICK: " << w->name << std::endl;
 		// WE ACTIVATE OR REACTIVATE A WIDGET
 		// this is done by detecting the clicks
 		if(w->clicked(ev.pos_x, ev.pos_y) && w->visible && w->interactive){
 		
-			std::cout << "ACTIVATING: " << w->name << std::endl;
 			w->event_handler(ev);
 			break;
 		
@@ -166,7 +156,7 @@ This function is responsible for changing between these states.
 		
 			// WE HANDLE ACTIVE WIDGETS (ACTIONS)
 			if(w->get_active()){
-				//std::cout << "ADDING EVENT TO: " << w->name << std::endl;
+
 				w->event_handler(ev);
 				break;
 			
@@ -188,55 +178,43 @@ This function is responsible for changing between these states.
 
 }
 
-/*Menu * dropdown_list(std::string name_of_widget, SIZE s, int x, int y){
-
-	// initiate new data storage with a display value of 0 ------------------------------
-	DataStorage * ds = new DataStorage();
-	ds->post("list", "Small game (15x15)");
-	ds->post("list", "Large game (30x30)");
-	ds->post("list", "Quit game");
-	ds->post("selected", "");
-	
-	// initiate business logic ----------------------------------------------------------
-	PlainList * list_bl = new PlainList(name_of_widget);
-	list_bl->add_data_storage(ds);
-
-	// initiate list --------------------------------------------------------------------
-	Menu* l_1 = new Menu(50, 100, 200, 200, name_of_widget, ds, list_bl, 3, s);
-	l_1->move_widget(x, y);
-	l_1->set_moveable(false);
-	
-	
-	// add the main UI container widgets to the storage ---------------------------------
-	ds->add_widget(l_1);
-
-	return l_1;
-
-}*/
-
 void draw_background(){
 
 	gout << color(100, 100, 100) << move_to(0, 0) << box_to(XX-1, 52);
 
 }
 
-
-int main(){
+void graphical_runtime(){
 
 	gout.open(XX, YY);
 	event ev;
 	gin.timer(100);
 	
-	gout.load_font("../resources/LiberationSans-Regular.ttf", 20);
-	
+	// to create the game, we create the DataStorage and the BL
+	// we initiate a variable (quit) so we can close the window from inside 
+	// the game
+	bool quit = false;
 	DataStorage * ds = new DataStorage();
-	TicTacBL * bl = new TicTacBL("menu_BL", ds, &UI_components);
+	TicTacBL * bl = new TicTacBL("menu_BL", ds, &UI_components, &quit);
     
-    	while (gin >> ev) {
-    		
+    	while (gin >> ev && !quit) {
+    		 
     		 clear_screen();
     		 draw_background();
 		 UI_event_handler(ev);
     		 gout<<refresh;
     	}
+    	
+    	// we delete the DataStorage and the BL
+    	ds->purge();
+    	delete ds;
+    	
+    	delete bl;
+
+}
+
+int main(){
+
+	graphical_runtime();
+
 }

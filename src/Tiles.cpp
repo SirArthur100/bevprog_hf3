@@ -11,9 +11,9 @@ Tiles::Tiles(int xx, int yy, int cx, int cy, std::string nn, SIZE siz, DataStora
 
 }
 
-void Tiles::clear_widgets(){
+Tiles::~Tiles(){
 
-	for(WidgetBase * &w: connected_widgets){
+	for(auto *w: connected_widgets){
 	
 		connected_data_storages[0]->del_widget_by_name(w->name);
 		connected_data_storages[0]->del(w->name);
@@ -24,10 +24,6 @@ void Tiles::clear_widgets(){
 }	
 
 void Tiles::generate_tiles(){
-
-	std::cout << "GENERATE TILES!!" << std::endl;
-
-	clear_widgets();
 	
 	int minim = std::min( get_size_x(), get_size_y() );
 	int maxim = std::max( get_size_x(), get_size_y() );
@@ -42,13 +38,10 @@ void Tiles::generate_tiles(){
 		for(size_t j = 0; j < map_size ; j++){
 	
 			Tile * list_elem = new Tile(tile_x, tile_y, tile_x*2, tile_y*2, std::to_string( i * map_size + j ) );
-			list_elem->set_x(this->x + x_shift + i * tile_x);
-			list_elem->set_y(this->y + 3 + j * tile_y);
+			list_elem->set_x(this->x + x_shift + j * tile_x);
+			list_elem->set_y(this->y + 3 + i * tile_y);
 			list_elem->add_business_logic(this->bl);
 			list_elem->add_data_storage(this->connected_data_storages[0]);
-			
-			// we will need to set the data storage value to 0 for this element
-			list_elem->set_storage_value("0");
 			
 			list_elem->set_background_color("light-gray");
 			list_elem->set_highlight_color("red");

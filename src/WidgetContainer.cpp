@@ -13,6 +13,22 @@ WidgetContainer::WidgetContainer(int xx, int yy, int cx, int cy, std::string nn,
 	refresh();
 }
 
+WidgetContainer::~WidgetContainer(){
+
+	for(auto c: connected_widgets){
+	
+		connected_data_storages[0]->del_widget_by_name(c->name);
+		connected_data_storages[0]->del(c->name);
+		delete c;
+	
+	}
+	
+	connected_widgets.clear();
+	
+	connected_data_storages[0]->del_widget_by_name(this->name);
+	connected_data_storages[0]->del(this->name);
+}
+
 void WidgetContainer::event_handler(genv::event ev){
 
 /*
@@ -29,10 +45,10 @@ void WidgetContainer::event_handler(genv::event ev){
 	THIS FUNCTION IS ONLY CALLED IF THIS WidgetContainer AND/OR ONE OF ITS COMPONENT IS ACTIVE (eg. by a click).
 */
 
-	std::cout << "is_moveable: " << get_moveable() << std::endl;
+	//std::cout << "is_moveable: " << get_moveable() << std::endl;
 	if(get_dragged() && ev.type == genv::ev_mouse){
 		
-		std::cout << "dragging " << this->name << std::endl;
+		//std::cout << "dragging " << this->name << std::endl;
 		// we need to adjust the current position if the WidgetContainer is dragged
 		move_widget(ev.pos_x, ev.pos_y);
 		
@@ -44,14 +60,14 @@ void WidgetContainer::event_handler(genv::event ev){
 			// we forward the event to the contained widgets
 			forward_event(ev);
 
-			std::cout << "dragging FINISHED..." << std::endl;
+			//std::cout << "dragging FINISHED..." << std::endl;
 		
 		}
 	
 	// we check whether there is a click on one of the components
 	}else if(ev.button == 1 && clicked(ev.pos_x, ev.pos_y)){
 		
-		std::cout << this->name << " clicked and set active" << std::endl;
+		//std::cout << this->name << " clicked and set active" << std::endl;
 		
 		bool is_content_selected = false;
 		
@@ -61,7 +77,7 @@ void WidgetContainer::event_handler(genv::event ev){
 		
 			if( w->clicked(ev.pos_x, ev.pos_y) ){
 				
-				std::cout << "content clicked..." << std::endl;
+				//std::cout << "content clicked..." << std::endl;
 				
 				// if a content object is selected, we set the flag so we wont drag this WidgetContainer
 				// additionally, we give the event to the clicked object
@@ -119,8 +135,6 @@ void WidgetContainer::refresh(){
 
 	// we redraw this container on the its canvas
 	
-	//std::cout << r << " " << g << " " << b << std::endl;
-	
 	c << genv::color(r,g,b) << genv::move_to(0, 0) << genv::box_to(size_x, size_y);
 	
 	// if it is active, add green borders
@@ -133,12 +147,9 @@ void WidgetContainer::refresh(){
 	// we redraw the contained widgets on their own canvas
 	for(WidgetBase * &w: connected_widgets){
 	
-		std::cout << "refreshed: " << w->name << std::endl;
 		w->refresh();
 	
 	}
-	
-	//std::cout << "refreshed: " << this->name << std::endl;
 
 }
 
@@ -221,9 +232,6 @@ void WidgetContainer::move_widget(int nx, int ny){
 	// lastly , reposition this widget
 	set_x( nx - (distance_x) );
 	set_y( ny - (distance_y) );
-	
-	//std::cout  << "set_x( nx - (distance_x) ): " << get_x() << std::endl;
-	//std::cout  << "set_y( ny - (distance_y) ): " << get_y() << std::endl;
 
 }
 

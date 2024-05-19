@@ -37,8 +37,6 @@ public:
 	void clear_list();
 	void restructuring(std::string s);
 	
-	//void refresh() override;
-	
 	void event_handler(genv::event ev) override;
 
 };

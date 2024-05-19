@@ -57,7 +57,6 @@ void Display::refresh(){
 	
 	if( !connected_data_storages.empty() ){
 	
-		//std::cout << "setting text from storage... " <<  std::endl;
 		set_text(connected_data_storages[0]->get(name, 0));
 	}
 	
@@ -67,8 +66,6 @@ void Display::refresh(){
 	// draw display box
 	if(this->active || this->highlighted){
 	
-		//td::cout << "highlight_color: " << highlight_color <<  std::endl;
-		//set_color("red");
 		c << move_to(0,0) << color(200, 200, 200) << box_to(this->size_x-1, this->size_y-1);
 	
 	} else {
@@ -119,7 +116,7 @@ void Display::set_highlight_color(std::string col){
 
 }
 
-
+	
 
 
 

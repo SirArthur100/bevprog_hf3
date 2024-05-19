@@ -21,6 +21,7 @@ class Tiles : public WidgetContainer{
 public:
 
 	Tiles(int xx, int yy, int cx, int cy, std::string nn, SIZE siz, DataStorage * d, BusinessLogic * b, int game_size);
+	~Tiles();
 	
 	// specifics
 	void generate_tiles();
@@ -29,7 +30,6 @@ public:
 	// overrides
 	void event_handler(genv::event ev) override;
 	void refresh() override;
-	// void send_event_to_business_logic(genv::event ev) override;
 
 
 };

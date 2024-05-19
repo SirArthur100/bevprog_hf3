@@ -5,6 +5,7 @@
 #include "WidgetContainer.hpp"
 #include "Tiles.hpp"
 #include "Menu.hpp"
+#include "Display.hpp"
 
 #include <vector>
 
@@ -16,22 +17,26 @@ public:
 
 	// game elements
 	std::vector<WidgetContainer *> *game_container;
-	Menu* game_menu = NULL;
-	Tiles* game_tiles = NULL;
+	
+	std::vector< std::string > winner_tiles;
 
 	int game_size;
 	int win;
+	bool * quit;
 	
 	std::string parent_event;
 
 	void remove_elements();
 
 	// initiators
-	TicTacBL(std::string n, DataStorage * dstore, std::vector<WidgetContainer *> *containers);
+	TicTacBL(std::string n, DataStorage * dstore, std::vector<WidgetContainer *> *containers, bool *q);
+	~TicTacBL();
 	void set_game_size(size_t s);
 	void generate_starting_state();
 	void initiate_current_player();
 	void construct_menu();
+	void construct_tiles();
+	void construct_display();
 	
 	// game state checkers
 	bool is_valid_move(size_t pos);

@@ -48,6 +48,7 @@ public:
 	int id;
 	
 	std::string name;
+	std::string default_value;
 	
 	SIZE widget_size;
 	
@@ -74,6 +75,7 @@ public:
 	//----------------------------METHODS----------------------------------
 
 	WidgetBase(int xx, int yy, int cx, int cy, std::string nn, SIZE siz = SMALL);
+
 	
 	// attach connections to this widget
 	void add_widget(WidgetBase * new_widget);
@@ -104,6 +106,7 @@ public:
 	
 	// rename widget
 	void rename(std::string nn);
+	void default_val(std::string nn);
 	
 	// color setter
 	void set_color(std::string);
